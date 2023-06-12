@@ -1,0 +1,64 @@
+/*temporary table
+*/
+drop table if exists ptbl
+go
+
+Command(s) completed successfully.
+
+create table ptbl
+(
+rno int identity(1001,1),
+sname varchar(2) not null,
+m1 decimal(5, 2) not null,
+m2 decimal(5, 2) not null
+)
+go
+
+Command(s) completed successfully.
+
+insert into ptbl
+(sname, m1, m2)
+values
+('x5',36.5,43),
+('x3',52,45.5)
+go
+
+(2 row(s) affected)
+
+select * from ptbl
+
+rno	sname	m1	m2
+1001	x5	36.50	43.00
+1002	x3	52.00	45.50
+
+select * into #ttbl from ptbl
+go
+
+(2 row(s) affected)
+
+select * from #ttbl
+go
+
+rno	sname	m1	m2
+1001	x5	36.50	43.00
+1002	x3	52.00	45.50
+
+select
+rno,
+(m1 + m2)'total',
+(m1+ m2)/2 'average',
+iif(m1>34.4 and m2>34.4,'pass','fail')'result'
+into #ttbl
+from ptbl
+go
+
+(2 row(s) affected)
+
+select * from #ttbl
+go
+
+rno	total	average	result
+1001	79.50	39.750000	pass
+1002	97.50	48.750000	pass
+
+

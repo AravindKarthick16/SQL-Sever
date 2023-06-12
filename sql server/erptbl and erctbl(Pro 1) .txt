@@ -1,0 +1,217 @@
+/*
+how to develop
+'primary key' and 'foreign(or references)key'
+*/
+
+drop table if exists erctbl
+go
+
+Command(s) completed successfully.
+
+drop table if exists erptbl
+go
+
+Command(s) completed successfully.
+
+create table erptbl
+(
+rno int primary key,
+sname varchar(2) not null,
+m1 decimal(5, 2) not null,
+m2 decimal(5, 2) not null,
+)
+go
+
+Command(s) completed successfully.
+
+drop table if exists erctbl
+go
+
+Command(s) completed successfully.
+
+create table erctbl
+(
+rno int references erptbl,
+total decimal(5, 2) default 0,
+average decimal(5, 2) default 0,
+result char(4) default 'fail'
+)
+go
+
+Command(s) completed successfully.
+
+select * from erptbl
+go
+
+select * from erctbl
+go
+
+rno	sname	m1	m2
+
+rno	total	average	result
+
+insert into erptbl
+(rno, sname, m1, m2)
+values
+(1001,'x5',36.5,52),
+(1002,'x3',45,54.5)
+go
+
+(2 row(s) affected)
+
+select * from erptbl
+go
+
+select * from erctbl
+go
+
+rno	sname	m1	m2
+1001	x5	36.50	52.00
+1002	x3	45.00	54.50
+
+rno	total	average	result
+
+select
+rno,
+(m1 + m2),
+(m1 + m2)/2,
+iif(m1>34.4 and m2>34.4,'Pass','Fail')
+from erptbl
+go
+
+insert into erctbl
+select
+rno,
+(m1 + m2),
+(m1 + m2)/2,
+iif(m1>34.4 and m2>34.4, 'Pass','Fail')
+from erptbl
+go
+
+rno	(No column name)	(No column name)	(No column name)
+1001	88.50	44.250000	Pass
+1002	99.50	49.750000	Pass
+
+select * from erctbl
+go
+
+select * from erptbl
+go
+
+rno	total	average	result
+1001	88.50	44.25	Pass
+1002	99.50	49.75	Pass
+
+/*
+insert into erctbl
+(rno, total, average, result)
+values
+(9009, 0, 0, 'Fail')
+go
+*/
+
+select * from erptbl
+go
+
+rno	sname	m1	m2
+1001	x5	36.50	52.00
+1002	x3	45.00	54.50
+
+update erptbl set
+m1=20
+where rno=1001;
+
+(1 row(s) affected)
+
+select * from erptbl
+go
+
+select * from erctbl
+go
+
+rno	sname	m1	m2
+1001	x5	20.00	52.00
+1002	x3	45.00	54.50
+
+rno	total	average	result
+1001	88.50	44.25	Pass
+1002	99.50	49.75	Pass
+
+update erctbl set
+total=(m1+m2),
+average=(m1+m2)/2,
+result=iif(m1>34.4 and m2>34.4,'Pass','Fail')
+from erptbl
+where erptbl.rno=erctbl.rno
+go
+
+(4 row(s) affected)
+
+select * from erptbl
+go
+
+rno	sname	m1	m2
+1001	x5	20.00	52.00
+1002	x3	45.00	54.50
+
+select
+p.rno, sname, m1, m2,
+total, average, result
+from erptbl p,erctbl c
+where p.rno=c.rno
+go
+
+rno	sname	m1	m2	total	average	result
+1001	x5	20.00	52.00	72.00	36.00	Fail
+1002	x3	45.00	54.50	99.50	49.75	Pass
+
+drop view if exists ervr
+go
+
+Command(s) completed successfully.
+
+create view ervr
+as
+select
+p.rno, sname, m1, m2,
+total, average, result
+from erptbl p, erctbl c
+where p.rno=c.rno
+go
+
+Command(s) completed successfully.
+
+select * from ervr
+go
+
+1001	x5	20.00	52.00	72.00	36.00	Fail
+1002	x3	45.00	54.50	99.50	49.75	Pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

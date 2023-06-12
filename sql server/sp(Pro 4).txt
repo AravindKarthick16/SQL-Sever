@@ -1,0 +1,20 @@
+/* example for sub program (category:procedure)
+*/
+
+drop procedure if exists udpdiv
+go
+
+Command(s) completed successfully.
+
+create procedure udpdiv(@i float,@j float)
+as
+begin 
+print @i/@j;
+end
+go
+
+Command(s) completed successfully.
+
+exec udpdiv 10,3
+
+3.33333

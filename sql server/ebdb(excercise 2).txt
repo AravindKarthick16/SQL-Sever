@@ -1,0 +1,370 @@
+input:
+use master;
+
+output:
+Command(s) completed successfully.
+
+input:
+drop database if exists ebdb;
+
+output:
+Command(s) completed successfully.
+
+input:
+create database ebdb
+on
+(
+name='ebdb',
+filename='C:\sqlserver\dbs\ebdb.mdf'
+)
+go
+
+output:
+Command(s) completed successfully.
+
+input:
+drop table if exists ebptbl
+go
+
+output:
+Command(s) completed successfully.
+
+
+input:
+create table ebptbl
+(
+ccid int identity(1,1),
+ccname varchar(11) primary key not null
+check (lower(ccname) in ('agriculture','domestic','commercial'))
+default 'commercial',
+puau100 numeric(6,2) not null check(puau100>=0),
+puau200 numeric(6,2) not null check(puau200>=0),
+puau400 numeric(6,2) not null check(puau400>=0),
+puaa400 numeric(6,2) not null check(puaa400>=0),
+mc numeric(6,2) not null check(mc>=0),
+taxp numeric(5,2) not null check(taxp>=0 and taxp<=99.99)
+)
+go
+
+output:
+Command(s) completed successfully.
+
+
+input:
+select*from ebptbl;
+
+output:
+ccid	ccname	puau100	puau200	puau400	puaa400	mc	taxp
+
+input:
+insert into ebptbl
+(ccname,puau100,puau200,puau400,puaa400,mc,taxp)
+values
+('agriculture',0.25,0.50,1.00,2.00,12.50,1.25),
+('domestic',1.00,2.00,4.00,8.00,50.00,5.0),
+('commercial',3.00,6.00,12.00,24.00,150.00,15.0)
+go
+
+output:
+(3 row(s) affected)
+
+input:
+select*from ebptbl;
+
+
+output:
+ccid	ccname		puau100	puau200	puau400	puaa400	mc		taxp
+1	agriculture		0.25		0.50		1.00		2.00		12.50		1.25
+3	commercial		3.00		6.00		12.00		24.00		150.00	15.00
+2	domestic		1.00		2.00		4.00		8.00		50.00		5.00
+
+
+input:
+select*from ebptbl order by ccid;
+
+output:
+ccid	ccname		puau100	puau200	puau400	puaa400	mc		taxp
+1	agriculture		0.25		0.50		1.00		2.00		12.50 	1.25
+2	domestic		1.00		2.00		4.00		8.00		50.00  	5.00
+3	commercial		3.00		6.00		12.00		24.00		150.00	15.00
+
+
+input:
+drop table if exists ebctbl
+go
+
+output:
+Command(s) completed successfully.
+
+input:
+create table ebctbl
+(
+cid int identity(1001,1)not null,
+ccname varchar(11) not null default 'commercial' references ebptbl,
+pread int not null check (pread>=0),
+cread int not null check (cread>=0),
+nread as (cread-pread),
+cuu100 int,
+cuau100 numeric(7,2),
+cuu200 int,
+cuau200 numeric(8,2),
+cuu400 int,
+cuau400 numeric(9,2),
+cua400 int,
+cuaa400 numeric(9,2),
+taxa numeric(9,2),
+npay numeric(14,2),
+constraint ckcncp check(cread>=pread)
+);
+
+output:
+Command(s) completed successfully.
+
+input:
+select*from ebctbl;
+
+output:
+cid	ccname	pread	cread	nread	cuu100	cuau100	cuu200	cuau200	cuu400	cuau400	cua400	cuaa400	taxa	npay
+
+
+
+input:
+select cid,nread,taxa,npay from ebctbl;
+
+output:
+cid	nread	taxa	npay
+
+
+input;
+insert into ebctbl
+(ccname,pread,cread)
+values
+('orange',0,50);
+
+output:
+The statement has been terminated.
+
+input:
+insert into ebctbl
+(ccname,pread,cread)
+values
+('agriculture',0,50);
+
+output:
+(1 row(s) affected)
+
+input 1:
+insert into ebctbl
+(ccname,pread,cread)
+values
+('domestic',0,50);
+
+output:
+(1 row(s) affected)
+
+input:
+insert into ebctbl
+(pread,cread)
+values
+(0,50);
+
+output:
+(1 row(s) affected)
+
+
+input:
+select*from ebctbl;
+
+output:
+
+cid	ccname	pread	cread	nread	cuu100	cuau100	cuu200	cuau200	cuu400	cuau400	cua400	cuaa400	taxa	npay
+1002	agriculture	0	50	50	NULL	       NULL  	NULL	      NULL	      NULL	      NULL	      NULL	      NULL	      NULL	NULL
+1003	domestic	0	50	50	NULL	       NULL 	NULL	      NULL   	NULL	      NULL	      NULL	      NULL	      NULL	NULL
+1004	commercial	0	50	50	NULL	      NULL	     NULL	      NULL  	NULL	      NULL	      NULL	      NULL	      NULL	NULL
+
+input :
+
+drop trigger if exists trgins_ebctbl;
+
+
+output:
+Command(s) completed successfully.
+
+
+input:
+create trigger trgins_ebctbl
+on ebctbl
+for insert
+as
+begin--trigger block starts here
+
+set nocount on;
+
+declare @cid int=null;
+select @cid=i.cid from inserted i;
+
+drop table if exists tmptbl;
+
+declare @ccname varchar(11)=null;
+select @ccname=i.ccname from inserted i;
+select* into tmptbl from ebptbl where ccname = @ccname;
+
+
+
+declare @puau100 numeric(6,2)=0;
+select @puau100=puau100 from tmptbl;
+declare @puau200 numeric(6,2)=0;
+select @puau200=puau200 from tmptbl;
+declare @puau400 numeric(6,2)=0;
+select @puau400=puau400 from tmptbl;
+declare @puaa400 numeric(6,2)=0;
+select @puaa400=puaa400 from tmptbl;
+declare @mc numeric(6,2)=0;
+select @mc=mc from tmptbl;
+declare @taxp numeric(6,2)=0;
+select @taxp=taxp from tmptbl;
+
+declare @nread int=0;
+select @nread=i.nread from inserted i;
+
+declare @cuu100 int=0;
+declare @cuau100 numeric(9,2)=0;
+declare @cuu200 int=0;
+declare @cuau200 numeric(9,2)=0;
+declare @cuu400 int=0;
+declare @cuau400 numeric(9,2)=0;
+declare @cua400 int=0;
+declare @cuaa400 numeric(9,2)=0;
+declare @taxa numeric(9,2)=0;
+declare @npay numeric(9,2)=0;
+
+if(@nread>400)
+begin
+select @cuau100=100*@puau100;
+select @cuau200=100*@puau200;
+select @cuau400=100*@puau400;
+select @cuaa400=(@nread-400)*@puaa400;
+select @taxa=@cuaa400*(@taxp/100);
+end
+else if(@nread>100)
+begin
+select @cuau100=100*@puau100;
+end
+select @npay=@cuau100+@cuau200+@cuau400+@cuaa400+@mc+@taxa;
+update ebctbl set
+cuu100=@cuu100,
+cuau100=@cuau100,
+cuu200=@cuu200,
+cuau200=@cuau200,
+cuu400=@cuu400,
+cuau400=@cuau400,
+cua400=@cua400,
+cuaa400=@cuaa400,
+taxa=@taxa,
+npay=@npay
+where cid=@cid
+set nocount off;
+end--trigger block endshere
+go
+
+output:
+Command(s) completed successfully.
+
+
+input:
+select*from ebctbl;
+
+output:
+cid	ccname	pread	cread	nread	cuu100	cuau100	cuu200	cuau200	cuu400	cuau400	cua400	cuaa400	taxa	npay
+1002	agriculture	0	50	50	NULL		NULL		NULL		NULL		NULL		NULL		NULL		NULL		NULL	NULL
+1003	domestic	0	50	50	NULL		NULL		NULL		NULL		NULL		NULL		NULL		NULL		NULL	NULL
+1004	commercial	0	50	50	NULL		NULL		NULL		NULL		NULL		NULL		NULL		NULL		NULL	NULL
+
+
+
+input:
+insert into ebctbl (ccname,pread,cread) values ('agriculture',0,50);
+
+output:
+(1 row(s) affected)
+
+
+input:
+insert into ebctbl (ccname,pread,cread) values ('agriculture',0,150);
+insert into ebctbl (ccname,pread,cread) values ('agriculture',0,350);
+insert into ebctbl (ccname,pread,cread) values ('agriculture',0,550);
+insert into ebctbl (ccname,pread,cread) values ('domestic',0,50);
+insert into ebctbl (ccname,pread,cread) values ('domestic',0,150);
+insert into ebctbl (ccname,pread,cread) values ('domestic',0,350);
+insert into ebctbl (ccname,pread,cread) values ('domestic',0,550);
+insert into ebctbl (ccname,pread,cread) values ('commercial',0,50);
+insert into ebctbl (ccname,pread,cread) values ('commercial',0,150);
+insert into ebctbl (ccname,pread,cread) values ('commercial',0,350);
+insert into ebctbl (ccname,pread,cread) values ('commercial',0,550);
+
+
+
+output:
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+(1 row(s) affected)
+
+
+input:
+select*from ebctbl;
+
+output:
+cid	ccname	pread	cread	nread	cuu100	cuau100	cuu200	cuau200	cuu400	cuau400	cua400	cuaa400	taxa		npay
+1001	agriculture	0	150	150	0	      25.00	       0		0.00		0		0.00		0		0.00		0.00		37.50
+1002	agriculture	0	350	350	0	      25.00  	0		0.00		0		0.00		0		0.00		0.00		37.50
+1003	agriculture	0	550	550	0	      25.00 	0		50.00		0		100.00	0		300.00	3.75		491.25
+1004	domestic	0	50	50	0	      0.00		0		0.00		0		0.00		0		0.00		0.00		50.00
+1005	domestic	0	150	150	0	      100.00	0		0.00		0		0.00		0		0.00		0.00		150.00
+1006	domestic	0	350	350	0	      100.00	0		0.00		0		0.00		0		0.00		0.00		150.00
+1007	domestic	0	550	550	0	      100.00	0		200.00	0		400.00	0		1200.00	60.00		2010.00
+1008	commercial	0	50	50	0	      0.00		0		0.00		0		0.00		0		0.00		0.00		150.00
+1009	commercial	0	150	150	0	     300.00		0		0.00		0		0.00		0		0.00		0.00		450.00
+1010	commercial	0	350	350	0	     300.00		0		0.00		0		0.00		0		0.00		0.00		450.00
+1011	commercial	0	550	550	0	     300.00		0		600.00	0		1200.00	0		3600.00	540.00	6390.00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

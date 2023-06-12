@@ -1,0 +1,117 @@
+/* example for unique key
+*/
+
+drop table if exists uktbl
+go
+
+Command(s) completed successfully.
+
+create table uktbl
+(
+rno int identity(1001, 1),
+sname varchar(2),
+constraint cnunism unique(sname)
+)
+go
+
+Command(s) completed successfully.
+
+select * from uktbl
+go
+
+rno sname
+
+insert into uktbl
+(sname)
+values
+('x5'),
+('x3'),
+('x1');
+
+(3 row(s) affected)
+
+select * from uktbl
+go
+
+rno	sname
+1001	x5
+1002	x3
+1003	x1
+
+insert into uktbl
+values
+('x3')
+go
+
+Msg 2627, Level 14, State 1, Line 1
+Violation of UNIQUE KEY constraint 'cnunism'. Cannot insert duplicate key in object 'dbo.uktbl'. The duplicate key value is (x3).
+The statement has been terminated.
+
+insert into uktbl
+values
+('x2')
+go
+
+(1 row(s) affected)
+
+insert into uktbl
+values
+(null)
+go
+
+(1 row(s) affected)
+
+select * from uktbl
+go
+
+rno	sname
+1001	x5
+1002	x3
+1003	x1
+1005	x2
+1006	NULL
+
+insert into uktbl
+values
+('')
+go
+
+(1 row(s) affected)
+
+select * from uktbl
+go
+
+rno	sname
+1001	x5
+1002	x3
+1003	x1
+1005	x2
+1006	NULL
+1007	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

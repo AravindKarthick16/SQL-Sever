@@ -1,0 +1,26 @@
+/* example for no exec 
+*/
+
+set noexec off
+
+Command(s) completed successfully.
+
+print dbo.udfdiv(20,3)
+go
+
+6.66667
+
+select dbo.udfdiv(20, 7) divide
+go
+
+set noexec on
+
+print dbo.udfdiv(10, 3)
+go
+
+Command(s) completed successfully.
+
+select dbo.udfdiv(10,8)
+go
+
+Command(s) completed successfully.

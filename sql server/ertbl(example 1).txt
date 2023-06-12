@@ -1,0 +1,94 @@
+use master;
+
+use akdb;
+
+drop table if exists ertbl;
+
+create table ertbl
+(
+rno int identity(1001,1)not null,
+sname varchar(10)not null,
+m1 numeric(5,2)not null check(m1>0 and m1<99.9),
+m2 numeric(5,2)not null check(m2>0 and m2<99.9),
+total as (m1+m2),
+average as ((m1+m2)/2),
+result as (iif(m1>34.4 and m2>34.4,'pass','fail'))
+)
+go
+
+output:
+
+Command complete successfull
+
+select * from ertbl;
+
+output:
+rno	sname	m1	m2	total	average	result
+
+insert into ertbl
+(sname,m1,m2)
+values
+('karthick',64,78.9),
+('priya',72,85),
+('venkatesh',52,91.6),
+('harish',62,80);
+
+output:
+
+(4 row(s) affected)
+
+update ertbl set m1=56 where rno=1003;
+
+output:
+(1 row(s) affected)
+
+select*from ertbl;
+
+output:
+
+rno	sname	m1	m2	total	average	result
+1001	karthick	64.00	78.90	142.90	71.450000	pass
+1002	priya	72.00	85.00	157.00	78.500000	pass
+1003	venkatesh	56.00	91.60	147.60	73.800000	pass
+1004	harish	62.00	80.00	142.00	71.000000	pass
+
+delete from ertbl where rno = 1004;
+
+output:(1 row(s) affected)
+
+select*from ertbl;
+
+output:
+
+rno	sname	m1	m2	total	average	result
+1001	karthick	64.00	78.90	142.90	71.450000	pass
+1002	priya	72.00	85.00	157.00	78.500000	pass
+1003	venkatesh	56.00	91.60	147.60	73.800000	pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

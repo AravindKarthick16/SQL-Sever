@@ -1,0 +1,40 @@
+/* example for sub program(category: function)
+*/
+
+drop function if exists udfdiv
+go
+
+Command(s) completed successfully.
+
+create function udfdiv(@i float, @j float)
+returns float
+as
+begin 
+return(@i / @j);
+end
+go
+
+Command(s) completed successfully.
+
+print dbo.udfdiv(10, 3)
+go
+
+3.33333
+
+select dbo.udfdiv(20,3)
+go
+
+(No column name)
+6.66666666666667
+
+declare @k float;
+select @k k;
+select @k=dbo.udfdiv(30,7);
+select @k k;
+
+k
+NULL
+
+k
+4.28571428571429
+

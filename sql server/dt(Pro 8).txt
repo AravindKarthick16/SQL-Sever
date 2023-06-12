@@ -1,0 +1,73 @@
+/* example for delete trigger
+*/
+
+drop table if exists sitb
+go
+
+Command(s) completed successfully.
+
+create table sitbl
+(
+rno int identity(1001, 1),
+sname varchar(2)
+)
+go
+
+Command(s) completed successfully.
+
+select * from sitbl
+go
+
+Command(s) completed successfully.
+
+insert into sitbl
+(sname)
+values
+('x5'),
+('x3');
+
+Command(s) completed successfully.
+
+select * from sitbl
+go
+
+Command(s) completed successfully.
+
+delete from sitbl
+where rno=1001;
+
+Command(s) completed successfully.
+
+select * from sitbl
+go
+
+Command(s) completed successfully.
+
+drop trigger if exists trgdel_sitbl
+go
+
+Command(s) completed successfully.
+
+create trigger trgdel_sitbl
+on sitbl
+for delete
+as
+begin
+raiserror('denied: delete operation',1,1)
+rollback transaction
+end
+go
+
+Msg 8197, Level 16, State 4, Procedure trgdel_sitbl, Line 1 [Batch Start Line 0]
+The object 'sitbl' does not exist or is invalid for this operation.
+
+delete from sitbl
+where rno=1002
+go
+
+Command(s) completed successfully.
+
+select * from sitbl
+go
+
+Command(s) completed successfully.

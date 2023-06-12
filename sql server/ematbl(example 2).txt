@@ -1,0 +1,53 @@
+use akdb;
+
+Output:
+Command complete successfully
+
+
+drop table if exists ertbl;
+
+Output:
+Command complete successfully
+
+create table ematbl
+(
+rno int identity (1001, 1) not null,
+ename varchar (10) not null,
+salary numeric not null,
+hra as(salary*20.0/100),
+da as(salary*15.0/100),
+pf as(salary*35.0/100),
+gpay as( salary+20.0/100+15.0/100),
+npay as(salary+20.0/100+15.0/100-35.0/100)
+)
+go
+
+Output:
+Command complete successfully
+
+select * from ematbl;
+
+rno	ename	salary	hra	da	pf	gpay	npay
+
+insert into ematbl
+(ename,salary)
+values
+('karthick',800000),
+('priya',700000),
+('venkatesh',400000),
+('harish',600000);
+
+output:
+
+(4 row(s) affected)
+
+select * from ematbl;
+
+output:
+
+rno	ename	salary	hra	da	pf	gpay	npay
+1001	karthick	800000	160000.000000	120000.000000	280000.000000	800000.350000	800000.000000
+1002	priya	700000	140000.000000	105000.000000	245000.000000	700000.350000	700000.000000
+1003	venkatesh	400000	80000.000000	60000.000000	140000.000000	400000.350000	400000.000000
+1004	harish	600000	120000.000000	90000.000000	210000.000000	600000.350000	600000.000000
+
